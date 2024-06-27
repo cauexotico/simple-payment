@@ -8,7 +8,7 @@ use SimplePayment\Notifications\Providers\Mock02\Mock02Client;
 class Mock02NotifyTest extends TestCase
 {
     /**
-     * A basic unit test example.
+     * Tests if the external service Mock02 can notify users
      */
     public function test_mock02_can_notify_users(): void
     {

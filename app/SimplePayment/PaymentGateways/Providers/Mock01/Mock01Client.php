@@ -17,6 +17,10 @@ class Mock01Client implements PaymentGatewayContract
 
     public function paymentAuthorized(): bool
     {
+        if (config('external.ignore_external_services')) {
+            return true;
+        }
+
         $response = Http::retry(3, 100)->get(self::GATEWAY_URL);
 
         if ($response->failed()) {

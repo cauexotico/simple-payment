@@ -17,6 +17,10 @@ class Mock02Client implements NotificationContract
 
     public function notify(): bool
     {
+        if (config('external.ignore_external_services')) {
+            return true;
+        }
+
         $response = Http::retry(3, 100)->get(self::NOTIFICATION_URL);
 
         if ($response->failed()) {

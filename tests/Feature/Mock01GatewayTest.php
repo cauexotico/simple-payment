@@ -8,7 +8,7 @@ use SimplePayment\PaymentGateways\Providers\Mock01\Mock01Client;
 class Mock01GatewayTest extends TestCase
 {
     /**
-     * A basic unit test example.
+     * Tests if the external service Mock01 can authorize payments
      */
     public function test_mock01_can_authorize_payments(): void
     {
