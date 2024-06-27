@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SimplePayment\Seller\Seller;
 use Tests\TestCase;
 
 class UserApiTest extends TestCase
@@ -43,5 +44,30 @@ class UserApiTest extends TestCase
 
         $response = $this->postJson(route('users.store'), $data);
         $response->assertStatus(422);
+    }
+
+    /**
+     * Tests if created users have holder and wallets
+     */
+    public function test_users_have_holder_and_wallet(): void
+    {
+        $response = $this->postJson(route('users.store'), [
+            'name' => 'John Doe',
+            'email' => 'john@acme.com',
+            'document' => '00000000000000',
+            'type' => 'seller',
+            'password' => '12345678',
+        ]);
+
+        $this->assertDatabaseHas('sellers', [
+            'user_id' => $response->json('id'),
+        ]);
+
+        $seller = Seller::where('user_id', $response->json('id'))->first();
+
+        $this->assertDatabaseHas('wallets', [
+            'holder_id' => $seller->id,
+            'holder_type' => Seller::class,
+        ]);
     }
 }

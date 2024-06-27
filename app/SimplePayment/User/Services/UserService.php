@@ -19,9 +19,11 @@ class UserService
         $user->password = bcrypt($userDTO->password);
         $user->save();
 
-        $user->{$userDTO->type}()->create([
+        $holder = $user->{$userDTO->type}()->create([
             'document' => $userDTO->document
         ]);
+
+        $holder->wallet()->create();
 
         return $user;
     }

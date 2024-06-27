@@ -15,11 +15,9 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuidMorphs('holder');
-            $table->unsignedBigInteger('balance');
-            $table->unsignedBigInteger('blocked_balance');
+            $table->unsignedBigInteger('balance')->default(0);
+            $table->unsignedBigInteger('blocked_balance')->default(0);
             $table->timestamps();
-
-            
         });
     }
 
