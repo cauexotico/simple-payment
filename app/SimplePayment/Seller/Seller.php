@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use SimplePayment\Seller\SellerFactory;
+use SimplePayment\Transaction\Transaction;
 use SimplePayment\Wallet\Wallet;
 
 class Seller extends Model
@@ -33,6 +35,14 @@ class Seller extends Model
     public function wallet(): MorphOne
     {
         return $this->morphOne(Wallet::class, 'holder');
+    }
+
+    /**
+     * Get all of the seller's transactions.
+     */
+    public function transactions(): MorphMany
+    {
+        return $this->morphMany(Transaction::class, 'payer');
     }
 
     /**
