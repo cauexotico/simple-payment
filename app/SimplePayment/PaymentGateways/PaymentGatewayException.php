@@ -10,4 +10,9 @@ class PaymentGatewayException extends Exception
     {
         return new self('An error occurred while processing your request using the gateway ' . $gatewayName);
     }
+
+    public static function unknowGateway(string $gatewayName): self
+    {
+        return new self('We not recognize the ' . $gatewayName . ' provider');
+    }
 }

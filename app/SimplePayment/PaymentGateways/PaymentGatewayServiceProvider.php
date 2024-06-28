@@ -12,6 +12,7 @@ class PaymentGatewayServiceProvider extends ServiceProvider
         $this->app->bind(PaymentGatewayContract::class, function () {
             return match (config('payments.gateway')) {
                 'mock01' => new Mock01Client(),
+                default => throw PaymentGatewayException::unknowGateway(config('payments.gateway')),
             };
         });
     }

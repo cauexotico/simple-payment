@@ -8,33 +8,30 @@ use SimplePayment\Seller\Seller;
 use SimplePayment\Transaction\DTO\TransactionDTO;
 use SimplePayment\Transaction\Transaction;
 use SimplePayment\Transaction\TransactionException;
-use SimplePayment\Wallet\Wallet;
 use Illuminate\Support\Facades\DB;
+use SimplePayment\Notifications\NotificationContract;
 use SimplePayment\PaymentGateways\PaymentGatewayContract;
+use SimplePayment\Transaction\Repositories\TransactionRepository;
 
 class TransactionService
 {
     public function __construct(
         private readonly PaymentGatewayContract $paymentGateway,
+        private readonly NotificationContract $notificationGateway,
+        private readonly TransactionRepository $transactionRepository,
     ) {
     }
 
     public function createTransaction(TransactionDTO $transactionDTO): Transaction
     {
-        $this->validateTransactionRequirements($transactionDTO);
+        $payer = $this->findHolder($transactionDTO->payer_id);
+        $payee = $this->findHolder($transactionDTO->payee_id);
 
-        $transaction = DB::transaction(function () use ($transactionDTO) {
-            $walletPayer = Wallet::where('holder_id', $transactionDTO->payer_id)->first();
-            $walletPayee = Wallet::where('holder_id', $transactionDTO->payee_id)->first();
+        $this->validateTransactionRequirements($transactionDTO, $payer, $payee);
 
-            $transaction = Transaction::create([
-                'payer_id' => $transactionDTO->payer_id,
-                'payer_type' => get_class($walletPayer->holder),
-                'payee_id' => $transactionDTO->payee_id,
-                'payee_type' => get_class($walletPayee->holder),
-                'amount' => $transactionDTO->amount,
-                'status' => TransactionStatus::PENDING,
-            ]);
+        return DB::transaction(function () use ($transactionDTO, $payer, $payee) {
+
+            $transaction = $this->transactionRepository->createTransaction($transactionDTO, $payer, $payee);
 
             if (!$this->paymentGateway->paymentAuthorized()) {
                 throw TransactionException::notAuthorized($this->paymentGateway);
@@ -42,24 +39,22 @@ class TransactionService
 
             $transaction->setStatus(TransactionStatus::APPROVED);
 
-            $walletPayer->removeBalance($transactionDTO->amount);
-            $walletPayee->addBalance($transactionDTO->amount);
+            $transaction = $this->transactionRepository->transferMoney($transaction);
 
             $transaction->setStatus(TransactionStatus::FINISHED);
+
+            if (!$this->notificationGateway->notify()) {
+                throw TransactionException::unableToNotify($this->notificationGateway);
+            }
 
             $transaction->setStatus(TransactionStatus::NOTIFIED);
 
             return $transaction;
         });
-
-        return $transaction;
     }
 
-    private static function validateTransactionRequirements(TransactionDTO $transactionDTO): void
+    private static function validateTransactionRequirements(TransactionDTO $transactionDTO, $payer = null, $payee = null): void
     {
-        $payer = self::findHolder($transactionDTO->payer_id);
-        $payee = self::findHolder($transactionDTO->payer_id);
-
         if (!$payer) {
             throw TransactionException::payerNotFound();
         }

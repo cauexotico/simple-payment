@@ -3,6 +3,7 @@
 namespace SimplePayment\Transaction;
 
 use Exception;
+use SimplePayment\Notifications\NotificationContract;
 use SimplePayment\PaymentGateways\PaymentGatewayContract;
 
 class TransactionException extends Exception
@@ -30,5 +31,10 @@ class TransactionException extends Exception
     public static function notAuthorized(PaymentGatewayContract $gateway): self
     {
         return new self("External service " . $gateway->getName() . " didnt allow this transaction.");
+    }
+
+    public static function unableToNotify(NotificationContract $gateway): self
+    {
+        return new self("External service " . $gateway->getName() . " failed to notify.");
     }
 }
