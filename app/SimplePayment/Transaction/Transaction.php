@@ -13,6 +13,10 @@ class Transaction extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'payer_id',
+        'payer_type',
+        'payee_id',
+        'payee_type',
         'amount',
         'status',
     ];
@@ -28,6 +32,12 @@ class Transaction extends Model
             'amount' => 'integer',
             'status' => TransactionStatus::class,
         ];
+    }
+
+    public function setStatus(TransactionStatus $status)
+    {
+        $this->status = $status;
+        $this->save();
     }
 
     /**

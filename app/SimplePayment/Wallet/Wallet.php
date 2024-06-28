@@ -12,6 +12,8 @@ class Wallet extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'payer_id',
+        'payee_id',
         'balance',
     ];
 
@@ -26,6 +28,21 @@ class Wallet extends Model
             'balance' => 'integer',
         ];
     }
+
+    public function add(int $amount): void
+    {
+        if ($amount < 0) $amount = 0;
+
+        $this->balance += $amount;
+        $this->save();
+    }
+
+    public function remove(int $amount): void
+    {
+        if ($amount < 0) $amount = 0;
+
+        $this->balance -= $amount;
+        $this->save();
     }
 
     /**
