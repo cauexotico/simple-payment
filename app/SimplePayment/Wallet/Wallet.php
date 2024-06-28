@@ -29,7 +29,7 @@ class Wallet extends Model
         ];
     }
 
-    public function add(int $amount): void
+    public function addBalance(int $amount): void
     {
         if ($amount < 0) $amount = 0;
 
@@ -37,7 +37,7 @@ class Wallet extends Model
         $this->save();
     }
 
-    public function remove(int $amount): void
+    public function removeBalance(int $amount): void
     {
         if ($amount < 0) $amount = 0;
 
