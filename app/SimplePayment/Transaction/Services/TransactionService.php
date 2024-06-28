@@ -29,7 +29,7 @@ class TransactionService
 
         $this->validateTransactionRequirements($transactionDTO, $payer, $payee);
 
-        return DB::transaction(function () use ($transactionDTO, $payer, $payee) {
+        $transaction = DB::transaction(function () use ($transactionDTO, $payer, $payee) {
 
             $transaction = $this->transactionRepository->createTransaction($transactionDTO, $payer, $payee);
 
@@ -39,18 +39,20 @@ class TransactionService
 
             $transaction->setStatus(TransactionStatus::APPROVED);
 
-            $transaction = $this->transactionRepository->transferMoney($transaction);
+            $this->transactionRepository->transferMoney($transaction);
 
             $transaction->setStatus(TransactionStatus::FINISHED);
 
-            if (!$this->notificationGateway->notify()) {
-                throw TransactionException::unableToNotify($this->notificationGateway);
-            }
-
-            $transaction->setStatus(TransactionStatus::NOTIFIED);
-
             return $transaction;
         });
+
+        if (!$this->notificationGateway->notify()) {
+            throw TransactionException::unableToNotify($this->notificationGateway);
+        }
+
+        $transaction->setStatus(TransactionStatus::NOTIFIED);
+
+        return $transaction;
     }
 
     private static function validateTransactionRequirements(TransactionDTO $transactionDTO, $payer = null, $payee = null): void
