@@ -16,7 +16,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuidMorphs('holder');
             $table->unsignedBigInteger('balance')->default(0);
-            $table->unsignedBigInteger('blocked_balance')->default(0);
             $table->timestamps();
         });
     }

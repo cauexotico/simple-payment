@@ -2,7 +2,6 @@
 
 namespace SimplePayment\Wallet;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +13,6 @@ class Wallet extends Model
 
     protected $fillable = [
         'balance',
-        'blocked_balance',
     ];
 
     /**
@@ -26,8 +24,8 @@ class Wallet extends Model
     {
         return [
             'balance' => 'integer',
-            'blocked_balance' => 'integer',
         ];
+    }
     }
 
     /**

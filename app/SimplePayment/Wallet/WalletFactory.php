@@ -21,7 +21,6 @@ class WalletFactory extends Factory
     {
         return [
             'balance' => 0,
-            'blocked_balance' => 0,
             'holder_id' => Customer::factory(),
             'holder_type' => Customer::class,
         ];
