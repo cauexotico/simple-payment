@@ -66,15 +66,6 @@ Você pode verificar os testes da aplicação usando:
 php artisan test
 ```
 
-## Rodando os testes
-
-Para rodar os testes, rode o seguinte comando
-
-```bash
-  php artisan test
-```
-
-
 ## Documentação da API
 
 A URL padrão configurada para o projeto é http://localhost:8000, então você pode realizar chamadas de api utilizando as seguintes rotas:
